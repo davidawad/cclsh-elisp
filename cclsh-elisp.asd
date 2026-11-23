@@ -10,7 +10,7 @@
 (defsystem "cclsh-elisp"
   :description "cclsh plugin: the `elisp' command and `elisp-eval', backed by cclsh-elisp/core."
   :license "ISC"
-  :depends-on ("cclsh-elisp/core" "cclsh")
+  :depends-on ("cclsh-elisp/core" "cclsh" (:feature :sbcl "sb-posix"))
   :pathname "src/"
   :components ((:file "cclsh")))
 

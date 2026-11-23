@@ -18,7 +18,19 @@ $ (mapcar #'slug '("A b" "C d"))
 ("a-b" "c-d")
 ```
 
-`.el` files in `~/.config/cclsh/elisp/` load at startup. Functions defined in
+`.el` files in `~/.config/cclsh/elisp/` load at startup. To bring in a whole
+Emacs config without paying for loading it, add this to `startup.lisp`:
+
+```lisp
+(elisp-autoload-directory "~/.config/emacs/lisp/")
+```
+
+Every function defined under that directory is callable immediately; its
+file loads the first time one of its functions is called (like Emacs
+autoloads). The name index is cached and checked with one `stat` per file, so
+an unchanged tree registers thousands of functions in well under a second.
+Functions that need buffers, windows or other editor state still signal
+`(void-function NAME)` when called. Functions defined in
 the `elisp>` loop, by `elisp -e` or by `elisp FILE.el` become commands the
 moment they are defined. A name that is already a cclsh command, a Common Lisp
 symbol or a program on `PATH` keeps that meaning at the prompt (`ls` stays
