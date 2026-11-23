@@ -46,6 +46,8 @@
     ("(defun fib (n) (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2))))) (fib 20)" "6765")
     ("[1 2 (3)]" "[1 2 (3)]")
     ("(cond ((= 1 2) 'a) ((= 1 1) 'b))" "b")
+    ("(mapcar (function upcase) '(\"a\" \"b\"))" "(\"A\" \"B\")")
+    ("(funcall (function (lambda (x) (* 2 x))) 21)" "42")
     ("(list (length \"tab\\there\") (aref \"tab\\there\" 3))" "(8 9)")))
 
 (defparameter *program-cases*

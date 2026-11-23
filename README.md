@@ -16,14 +16,15 @@ elisp> (cl-loop for i from 1 to 5 collect (* i i))
 elisp> (insert "x")
 (void-function insert)
 
-$ elisp -e '(mapconcat #'upcase (split-string "a b c") "-")'
+$ elisp -e "(mapconcat #'upcase (split-string \"a b c\") \"-\")"
 "A-B-C"
 $ elisp ~/.config/emacs/lisp/my-utils.el     # load a file; its defuns stay defined
 $ (+ 1 (elisp-eval "(* 6 7)"))               # from Common Lisp
 43
 ```
 
-Quote `-e` forms: cclsh evaluates a bare `(...)` argument as Common Lisp first.
+Quote `-e` forms (double quotes, so Elisp's `'` and `#'` survive): cclsh
+evaluates a bare `(...)` argument as Common Lisp first.
 
 ## What runs
 
