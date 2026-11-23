@@ -1,9 +1,29 @@
 # cclsh-elisp
 
-Run Emacs Lisp natively inside [cclsh](https://github.com/lambda-symbolics/cclsh),
+A tool for running Emacs Lisp code from [cclsh](https://github.com/lambda-symbolics/cclsh),
 the Common Lisp system shell. No Emacs process is involved: an Elisp
-interpreter written in Common Lisp evaluates the code in the shell's own image,
-so definitions persist for the session and values pass straight to Common Lisp.
+interpreter written in Common Lisp evaluates the code in the shell's own image.
+Every Elisp function you define becomes a cclsh command and a Common Lisp
+function of the same name, so your Elisp runs at the shell prompt like any
+other command.
+
+```
+$ cat ~/.config/cclsh/elisp/notes.el
+(defun slug (title) (downcase (replace-regexp-in-string "[^a-zA-Z0-9]+" "-" title)))
+$ slug "Hello, World"          # shell style: arguments are strings (or numbers)
+hello-world
+$ (slug "Lisp Bridge")         # Lisp style: returns the value
+"lisp-bridge"
+$ (mapcar #'slug '("A b" "C d"))
+("a-b" "c-d")
+```
+
+`.el` files in `~/.config/cclsh/elisp/` load at startup. Functions defined in
+the `elisp>` loop, by `elisp -e` or by `elisp FILE.el` become commands the
+moment they are defined. A name that is already a cclsh command, a Common Lisp
+symbol or a program on `PATH` keeps that meaning at the prompt (`ls` stays
+`/bin/ls`); the Elisp function is still reachable as `(name ...)` when the Lisp
+name is free, or always as `(elisp-call 'name ...)`.
 
 ```
 $ elisp

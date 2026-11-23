@@ -64,6 +64,14 @@
                      (with-output-to-string (*standard-output*)
                        (elisp::report (lambda () (elisp:eval-string source))))))
 
+(defun hook-test ()
+  "defun, defalias and fset report to *define-function-hook*."
+  (let* ((seen '())
+         (elisp:*define-function-hook* (list (lambda (s f) (declare (ignore f))
+                                               (push (symbol-name s) seen)))))
+    (elisp:eval-string "(defun hook-a () 1) (defalias 'hook-b #'hook-a) (fset 'hook-c #'hook-a)")
+    (equal (reverse seen) '("hook-a" "hook-b" "hook-c"))))
+
 (defun run ()
   "Run every case; return T when all pass."
   (let ((pass 0) (fail 0))
@@ -74,5 +82,6 @@
             (incf pass)
             (progn (incf fail)
                    (format t "FAIL ~a~%  want ~a~%  got  ~a~%" (first c) (second c) got)))))
+    (if (hook-test) (incf pass) (progn (incf fail) (format t "FAIL define-function hook~%")))
     (format t "PASS ~d FAIL ~d~%" pass fail)
     (zerop fail)))

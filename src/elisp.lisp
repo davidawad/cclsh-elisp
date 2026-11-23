@@ -11,7 +11,9 @@
 ;;;; API (package ELISP): eval-string, load-file, repl, prin1-string.
 
 (defpackage #:elisp-sym (:use))
-(defpackage #:elisp (:use #:cl) (:export #:eval-string #:load-file #:repl #:prin1-string))
+(defpackage #:elisp (:use #:cl)
+  (:export #:eval-string #:load-file #:repl #:prin1-string #:princ-string
+           #:*define-function-hook* #:report))
 (in-package #:elisp)
 
 ;;; -- Reader --
@@ -319,16 +321,23 @@
                                   (* sign (if (cdr a) (eval-form (cadr a) e) 1)))
                        e)))))
 
+(defvar *define-function-hook* '()
+  "Functions called with (SYMBOL FUNCTION) whenever Elisp defines a function
+(defun, defalias, fset). A host uses it to expose Elisp functions as its own.")
+
+(defun define-function (symbol function)
+  (setf (gethash symbol *functions*) function)
+  (dolist (hook *define-function-hook*) (funcall hook symbol function))
+  symbol)
+
 (defspecial "defun" (a e)
-  (setf (gethash (car a) *functions*) (make-closure (cadr a) (cddr a) nil))
-  (car a))
+  (define-function (car a) (make-closure (cadr a) (cddr a) nil)))
 (defspecial "defmacro" (a e)
   (setf (gethash (car a) *macros*) (make-closure (cadr a) (cddr a) nil))
   (car a))
 (defspecial "defalias" (a e)
   (let ((name (eval-form (car a) e)) (def (eval-form (cadr a) e)))
-    (setf (gethash name *functions*) (callable def))
-    name))
+    (define-function name (callable def))))
 (flet ((defvar-like (always)
          (lambda (a e)
            (setf (gethash (car a) *specials*) t)
@@ -922,7 +931,7 @@
                                 (gethash (symbol-name s) *special-forms*))
                             t))
 (defprim "symbol-function" (s) (gethash s *functions*))
-(defprim "fset" (s f) (setf (gethash s *functions*) (callable f)))
+(defprim "fset" (s f) (define-function s (callable f)) f)
 (defprim "keywordp" (x) (keywordp x))
 (defprim "booleanp" (x) (or (eq x t) (null x)))
 (defprim "characterp" (x) (and (integerp x) (<= 0 x #x3FFFFF)))
