@@ -235,6 +235,8 @@ stat per directory and file; only changed files are read again."
   "Make every function defined in the *.el files under DIRECTORY callable
 now, loading its file on the first call (like Emacs autoloads): startup
 only reads a cached name index. Returns the number of functions registered."
+  (when (and (stringp directory) (uiop:string-prefix-p "~/" directory))
+    (setf directory (concatenate 'string (getenv "HOME") (subseq directory 1))))
   (elisp--program-p "")                 ; refresh the PATH index once
   (let ((count 0) (*elisp-path-current* t))
     (dolist (entry (elisp--index directory exclude) count)
